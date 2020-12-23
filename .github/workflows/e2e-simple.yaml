@@ -38,11 +38,6 @@ jobs:
         kubectl create ns pingcap
       working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-    - name: Deploy requirements (LocalPV, Helm, Cert-manager)
-      run: |
-        SKIP_UP=y SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
-      working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
-    
     - name: e2e
       run: |
         SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
