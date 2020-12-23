@@ -46,7 +46,7 @@ jobs:
           kubectl get pods -n kube-system
           helm version
           kubectl version
-          echo "info: create pingcap namespace for chaos configurations"
+          echo "info: create pingcap namespace for configurations"
           kubectl create ns pingcap
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
