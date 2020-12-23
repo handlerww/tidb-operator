@@ -23,7 +23,7 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/go/mod/pkg
+          path: ~/go/mod/pkg
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
