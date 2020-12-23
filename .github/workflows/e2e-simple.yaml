@@ -6,8 +6,7 @@ on:
     - multicluster-e2e
 
 jobs:
-
-  pull:
+  parallel-e2e:
     runs-on: ubuntu-latest
     steps:
     - name: Set up Go 1.13
@@ -22,6 +21,7 @@ jobs:
         ref: ${{ github.event.pull_request.head.sha }}
         path: go/src/github.com/${{ github.repository }}
 
+    # This can be removed when reusing the cluster.
     - name: Creating kind cluster
       run: |
         SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
@@ -38,7 +38,69 @@ jobs:
         kubectl create ns pingcap
       working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-    - name: Run e2e
+    - name: Deploy requirements (LocalPV, Helm, Cert-manager)
+      run: |
+        SKIP_UP=y SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
+      working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+    # Ginkgo and the scripts should avoid serial.
+    # - name: Short E2E ("actions" takes the most part)
+    #   run: |
+    #     SKIP_UP=y ./hack/e2e.sh -- --ginko.parallel=5 --ginkgo.focus='Short'
+    #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+    # - name: Long E2E ("waiting" takes the most part)
+    #   run: |
+    #     SKIP_UP=y ./hack/e2e.sh -- --ginko.parallel=10 --ginkgo.focus='Long'
+    #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+    - name: Serial E2E - Part 1
       run: |
         SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
       working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+  serial-e2e:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.13
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        path: go/src/github.com/${{ github.repository }}
+
+    # This can be removed when reusing the cluster.
+    - name: Creating kind cluster
+      run: |
+        SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
+        echo "info: waiting for all nodes to be ready"
+        kubectl wait --for=condition=Ready nodes --all --timeout=120s
+        echo "info: waiting for all pods in kube-system namespace to be ready"
+        kubectl -n kube-system wait --for=condition=Ready pods --all
+        echo "info: print cluster information"
+        kubectl get nodes
+        kubectl get pods -n kube-system
+        helm version
+        kubectl version
+        echo "info: create pingcap namespace for chaos configurations"
+        kubectl create ns pingcap
+      working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+    # - name: Deploy requirements (LocalPV, Helm, Cert-manager)
+    #   run: |
+    #     SKIP_UP=y SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
+    #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+    # Ginkgo and the scripts should avoid serial.
+    - name: Serial E2E - Part 1
+      run: |
+        SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
+      working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+    # - name: Serial E2E - Part 2
+    #   run: |
+    #     SKIP_UP=y ./hack/e2e.sh -- --ginko.parallel=10 --ginkgo.focus='Restarter'
+    #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
