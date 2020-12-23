@@ -12,8 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         job:
-        - "Basic Basic"
-        - "^12"
+          - "Basic Basic"
+          - "^12"
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
@@ -33,27 +33,23 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-      - name: ${{ matrix.job }} 
+      - name: Creating kind cluster
         run: |
-          echo ${{ matrix.job }}
+          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
+          echo "info: waiting for all nodes to be ready"
+          kubectl wait --for=condition=Ready nodes --all --timeout=120s
+          echo "info: waiting for all pods in kube-system namespace to be ready"
+          kubectl -n kube-system wait --for=condition=Ready pods --all
+          echo "info: print cluster information"
+          kubectl get nodes
+          kubectl get pods -n kube-system
+          helm version
+          kubectl version
+          echo "info: create pingcap namespace for chaos configurations"
+          kubectl create ns pingcap
+        working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-      # - name: Creating kind cluster
-      #   run: |
-      #     SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
-      #     echo "info: waiting for all nodes to be ready"
-      #     kubectl wait --for=condition=Ready nodes --all --timeout=120s
-      #     echo "info: waiting for all pods in kube-system namespace to be ready"
-      #     kubectl -n kube-system wait --for=condition=Ready pods --all
-      #     echo "info: print cluster information"
-      #     kubectl get nodes
-      #     kubectl get pods -n kube-system
-      #     helm version
-      #     kubectl version
-      #     echo "info: create pingcap namespace for chaos configurations"
-      #     kubectl create ns pingcap
-      #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
-
-      # - name: e2e
-      #   run: |
-      #     SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
-      #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+      - name: e2e(${{ matrix.job }})
+        run: |
+          SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
+        working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
