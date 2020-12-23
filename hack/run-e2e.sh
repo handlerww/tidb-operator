@@ -46,6 +46,7 @@ GINKGO_PARALLEL=${GINKGO_PARALLEL:-n} # set to 'y' to run tests in parallel
 GINKGO_NO_COLOR=${GINKGO_NO_COLOR:-n}
 GINKGO_STREAM=${GINKGO_STREAM:-y}
 SKIP_GINKGO=${SKIP_GINKGO:-}
+SKIP_UP=${SKIP_UP:-}
 # We don't delete namespace on failure by default for easier debugging in local development.
 DELETE_NAMESPACE_ON_FAILURE=${DELETE_NAMESPACE_ON_FAILURE:-false}
 
@@ -169,23 +170,23 @@ function e2e::get_kube_version() {
     $KUBECTL_BIN --context $KUBECONTEXT version --short | awk '/Server Version:/ {print $3}'
 }
 
-function e2e::setup_helm_server() {
-    $KUBECTL_BIN --context $KUBECONTEXT apply -f ${ROOT}/manifests/tiller-rbac.yaml
-    if hack::version_ge $(e2e::get_kube_version) "v1.16.0"; then
-        # workaround for https://github.com/helm/helm/issues/6374
-        # TODO remove this when we can upgrade to helm 2.15+, see https://github.com/helm/helm/pull/6462
-        # \'$'\n is used to be compatible with BSD sed (Darwin)
-        $HELM_BIN init --service-account tiller --output yaml \
-            | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' \
-            | sed 's@  replicas: 1@  replicas: 1\'$'\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' \
-            | $KUBECTL_BIN --context $KUBECONTEXT apply -f -
-        echo "info: wait for tiller to be ready"
-        e2e::__wait_for_deploy kube-system tiller-deploy
-    else
-        $HELM_BIN init --service-account=tiller --skip-refresh --wait
-    fi
-    $HELM_BIN version
-}
+# function e2e::setup_helm_server() {
+#     $KUBECTL_BIN --context $KUBECONTEXT apply -f ${ROOT}/manifests/tiller-rbac.yaml
+#     if hack::version_ge $(e2e::get_kube_version) "v1.16.0"; then
+#         # workaround for https://github.com/helm/helm/issues/6374
+#         # TODO remove this when we can upgrade to helm 2.15+, see https://github.com/helm/helm/pull/6462
+#         # \'$'\n is used to be compatible with BSD sed (Darwin)
+#         $HELM_BIN init --service-account tiller --output yaml \
+#             | sed 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' \
+#             | sed 's@  replicas: 1@  replicas: 1\'$'\n  selector: {"matchLabels": {"app": "helm", "name": "tiller"}}@' \
+#             | $KUBECTL_BIN --context $KUBECONTEXT apply -f -
+#         echo "info: wait for tiller to be ready"
+#         e2e::__wait_for_deploy kube-system tiller-deploy
+#     else
+#         $HELM_BIN init --service-account=tiller --skip-refresh --wait
+#     fi
+#     $HELM_BIN version
+# }
 
 # Used by non-kind providers to tag image with its id. This can force our e2e
 # process to pull correct image even if IfNotPresent is used in an existing
@@ -299,8 +300,12 @@ if [ -z "$SKIP_IMAGE_LOAD" ]; then
     e2e::image_load
 fi
 
-e2e::setup_local_pvs
-e2e::setup_helm_server
+if [ -z "$SKIP_UP" ]; then
+    e2e::setup_local_pvs
+    # Remove due to upgrade to v3.4.2
+    # e2e::setup_helm_server
+    echo "info: skipping setup local pvs"
+fi
 
 if [ -n "$SKIP_GINKGO" ]; then
     echo "info: skipping ginkgo"
