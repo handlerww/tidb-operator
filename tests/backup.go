@@ -288,7 +288,7 @@ func (oa *operatorActions) DeployDrainer(info *DrainerConfig, source *TidbCluste
 		override["tlsCluster.enabled"] = "true"
 	}
 
-	cmd := fmt.Sprintf("helm install %s %s --namespace %s --set-string %s -f %s",
+	cmd := fmt.Sprintf("helm install %s %s --namespace %s --set-string %s -f %s --create-namespace",
 		info.DrainerName, oa.drainerChartPath(source.OperatorTag), source.Namespace, info.DrainerHelmString(override, source), valuesPath)
 	klog.Info(cmd)
 
