@@ -3,7 +3,7 @@ FROM debian:buster-slim
 ENV KUBECTL_VERSION=v1.12.2
 ENV HELM_VERSION=v3.4.2
 
-# python is required by gcloud
+# python is required by gcloud-
 RUN apt-get update && \
     apt-get install -y ca-certificates curl git openssl default-mysql-client unzip && \
     apt-get install -y python && \
