@@ -23,11 +23,10 @@ jobs:
 
       - uses: actions/cache@v2
         with:
-          path: ~/go/pkg/mod
+          path: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/go/pkg/mod
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-          working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
       # This can be removed when reusing the cluster.
       - name: Creating kind cluster
