@@ -300,7 +300,7 @@ if [ -z "$SKIP_IMAGE_LOAD" ]; then
     e2e::image_load
 fi
 
-if [ -z "$SKIP_UP" ]; then
+if [ -n "$SKIP_UP" ]; then
     e2e::setup_local_pvs
     # Remove due to upgrade to v3.4.2
     # e2e::setup_helm_server
