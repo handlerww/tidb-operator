@@ -12,23 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         job:
-          - \[Feature: TLS\]
-          - \[Feature: AutoFailover\]
-          - \[Feature: AutoScaling\]
-          - \[Feature: CDC\]
-          - Basic
-          - Service
-          - TidbMonitor
-          - TiDB cluster can be paused and unpaused
-          - when stores number is equal
-          - API
-          - Pump
-          - Switching back
-          - auto-scaling TiDB
-          - Upgrading TiDB Cluster
-          - TiKV mount multiple pvc
-          - Ensure Service NodePort
-          - Backup and restore
+          - multi-cluster
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
