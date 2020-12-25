@@ -32,24 +32,31 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-
-      - name: Creating kind cluster
+      
+      - name: Build requirements
         run: |
-          SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
-          echo "info: waiting for all nodes to be ready"
-          kubectl wait --for=condition=Ready nodes --all --timeout=120s
-          echo "info: waiting for all pods in kube-system namespace to be ready"
-          kubectl -n kube-system wait --for=condition=Ready pods --all
-          echo "info: print cluster information"
-          kubectl get nodes
-          kubectl get pods -n kube-system
-          helm version
-          kubectl version
-          echo "info: create pingcap namespace for configurations"
-          kubectl create ns pingcap
+          go env
+          go get -d -v ./...
+          SKIP_DOWN=y SKIP_TEST=y SKIP_UP=y KUBE_WORKERS=0 ./hack/e2e.sh
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-      - name: e2e(${{ matrix.job }})
-        run: |
-          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
-        working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+      # - name: Creating kind cluster
+      #   run: |
+      #     SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
+      #     echo "info: waiting for all nodes to be ready"
+      #     kubectl wait --for=condition=Ready nodes --all --timeout=120s
+      #     echo "info: waiting for all pods in kube-system namespace to be ready"
+      #     kubectl -n kube-system wait --for=condition=Ready pods --all
+      #     echo "info: print cluster information"
+      #     kubectl get nodes
+      #     kubectl get pods -n kube-system
+      #     helm version
+      #     kubectl version
+      #     echo "info: create pingcap namespace for configurations"
+      #     kubectl create ns pingcap
+      #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+      # - name: e2e(${{ matrix.job }})
+      #   run: |
+      #     SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
+      #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
