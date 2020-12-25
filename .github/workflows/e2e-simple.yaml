@@ -35,7 +35,7 @@ jobs:
 
       - name: Creating kind cluster
         run: |
-          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
+          SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
           echo "info: waiting for all nodes to be ready"
           kubectl wait --for=condition=Ready nodes --all --timeout=120s
           echo "info: waiting for all pods in kube-system namespace to be ready"
@@ -51,5 +51,5 @@ jobs:
 
       - name: e2e(${{ matrix.job }})
         run: |
-          SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
+          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
