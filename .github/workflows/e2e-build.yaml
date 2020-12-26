@@ -102,7 +102,7 @@ jobs:
       - name: Get matrix jobs
         id: set-matrix
         run: |
-          echo "::set-output name=matrix::{\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
+          echo "::set-output name=matrix::{\"include\":[{\"job\":\"foo\"},{\"job\":\"bar\"}]}"
 
   e2e-cases:
     needs: ["image-build"]
