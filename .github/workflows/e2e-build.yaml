@@ -4,92 +4,93 @@ on:
   push:
     branches:
       - multicluster-e2e
+  workflow_dispatch:
 
 jobs:
   image-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Set up Go 1.13
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.13
-        id: go
+      # - name: Set up Go 1.13
+      #   uses: actions/setup-go@v1
+      #   with:
+      #     go-version: 1.13
+      #   id: go
 
-      - name: Check out code into the Go module directory
-        uses: actions/checkout@v2
-        with:
-          ref: ${{ github.event.pull_request.head.sha }}
-          path: go/src/github.com/${{ github.repository }}
+      # - name: Check out code into the Go module directory
+      #   uses: actions/checkout@v2
+      #   with:
+      #     ref: ${{ github.event.pull_request.head.sha }}
+      #     path: go/src/github.com/${{ github.repository }}
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v1
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v1
 
-      - name: Cache Docker layers
-        uses: actions/cache@v2
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+      # - name: Cache Docker layers
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: /tmp/.buildx-cache
+      #     key: ${{ runner.os }}-buildx-${{ github.sha }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-buildx-
 
-      - uses: actions/cache@v2
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      # - uses: actions/cache@v2
+      #   with:
+      #     path: ~/.cache/go-build
+      #     key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+      #     restore-keys: |
+      #       ${{ runner.os }}-go-
 
-      - name: Build binary
-        run: |
-          make build
-          make e2e-build
-          [ -d tests/images/e2e/tidb-operator ] && rm -r tests/images/e2e/tidb-operator || true
-          [ -d tests/images/e2e/tidb-cluster ] && rm -r tests/images/e2e/tidb-cluster || true
-          [ -d tests/images/e2e/tidb-backup ] && rm -r tests/images/e2e/tidb-backup || true
-          [ -d tests/images/e2e/manifests ] && rm -r tests/images/e2e/manifests || true
-          cp -r charts/tidb-operator tests/images/e2e
-          cp -r charts/tidb-cluster tests/images/e2e
-          cp -r charts/tidb-backup tests/images/e2e
-          cp -r charts/tidb-drainer tests/images/e2e
-          cp -r manifests tests/images/e2e
-        working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+      # - name: Build binary
+      #   run: |
+      #     make build
+      #     make e2e-build
+      #     [ -d tests/images/e2e/tidb-operator ] && rm -r tests/images/e2e/tidb-operator || true
+      #     [ -d tests/images/e2e/tidb-cluster ] && rm -r tests/images/e2e/tidb-cluster || true
+      #     [ -d tests/images/e2e/tidb-backup ] && rm -r tests/images/e2e/tidb-backup || true
+      #     [ -d tests/images/e2e/manifests ] && rm -r tests/images/e2e/manifests || true
+      #     cp -r charts/tidb-operator tests/images/e2e
+      #     cp -r charts/tidb-cluster tests/images/e2e
+      #     cp -r charts/tidb-backup tests/images/e2e
+      #     cp -r charts/tidb-drainer tests/images/e2e
+      #     cp -r manifests tests/images/e2e
+      #   working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.CR_PAT }}
+      # - name: Login to GitHub Container Registry
+      #   uses: docker/login-action@v1
+      #   with:
+      #     registry: ghcr.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.CR_PAT }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager
-          file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ghcr.io/handlerww/tidb-operator/tidb-backup-manager:${{ github.sha }}
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager
+      #     file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager/Dockerfile
+      #     platforms: linux/amd64
+      #     push: true
+      #     tags: |
+      #       ghcr.io/handlerww/tidb-operator/tidb-backup-manager:${{ github.sha }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator
-          file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ghcr.io/handlerww/tidb-operator/tidb-operator:${{ github.sha }}
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator
+      #     file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator/Dockerfile
+      #     platforms: linux/amd64
+      #     push: true
+      #     tags: |
+      #       ghcr.io/handlerww/tidb-operator/tidb-operator:${{ github.sha }}
 
-      - name: Build and push
-        uses: docker/build-push-action@v2
-        with:
-          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e
-          file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e/Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: |
-            ghcr.io/handlerww/tidb-operator/tidb-operator-e2e:${{ github.sha }}
+      # - name: Build and push
+      #   uses: docker/build-push-action@v2
+      #   with:
+      #     context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e
+      #     file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e/Dockerfile
+      #     platforms: linux/amd64
+      #     push: true
+      #     tags: |
+      #       ghcr.io/handlerww/tidb-operator/tidb-operator-e2e:${{ github.sha }}
 
       # We can automatically get jobs to matrix
       - name: Trigger next workflow
