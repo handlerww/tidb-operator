@@ -24,6 +24,13 @@ jobs:
           ref: ${{ github.event.client_payload.sha }}
           path: go/src/github.com/${{ github.repository }}
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
+
       - name: Creating kind cluster
         run: |
           SKIP_DOWN=y SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
