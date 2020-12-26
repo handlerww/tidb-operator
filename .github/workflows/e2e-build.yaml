@@ -98,7 +98,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix: 
-        jobs:
+        job:
           - multicluster
     steps:
       - name: Set up Go 1.13
