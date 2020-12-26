@@ -64,7 +64,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager
           file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-backup-manager/Dockerfile
           platforms: linux/amd64
           push: true
@@ -74,7 +74,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator
           file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/images/tidb-operator/Dockerfile
           platforms: linux/amd64
           push: true
@@ -84,7 +84,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e
           file: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}/tests/images/e2e/Dockerfile
           platforms: linux/amd64
           push: true
