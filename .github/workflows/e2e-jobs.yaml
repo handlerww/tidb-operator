@@ -10,9 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix:
-        job:
-          - multi-cluster
+      matrix: { { fromJson(github.event.client_payload.jobs) } }
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1

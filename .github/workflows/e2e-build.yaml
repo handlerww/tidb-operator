@@ -100,4 +100,4 @@ jobs:
           event-type: trigger-workflow-2
           token: ${{ secrets.REPO_GHA_PAT }}
           repository: ${{ github.repository }}
-          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "job":["multicluster"]}'
+          client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}", "job":["project":"multicluster"]}'
