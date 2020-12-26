@@ -1,4 +1,4 @@
-name: e2e-jobs
+name: e2e-build
 
 on:
   push:
