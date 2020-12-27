@@ -1,11 +1,16 @@
 name: e2e
 
-on:
-  push:
-    branches:
-      - multicluster-e2e
-  workflow_dispatch:
+# on:
+#   push:
+#     branches:
+#       - multicluster-e2e
+#   workflow_dispatch:
 
+on:
+  pull_request:
+    branches:
+    - master
+    - release-*
 jobs:
   image-build:
     runs-on: ubuntu-latest
