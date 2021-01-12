@@ -31,7 +31,6 @@ jobs:
       # This can be removed when reusing the cluster.
       - name: Creating kind cluster
         run: |
-          pwd
           SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_DOWN=y SKIP_TEST=y KUBE_WORKERS=0 ./hack/e2e.sh
           echo "info: waiting for all nodes to be ready"
           kubectl wait --for=condition=Ready nodes --all --timeout=120s
@@ -45,10 +44,14 @@ jobs:
           echo "info: create pingcap namespace for chaos configurations"
           kubectl create ns pingcap
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+      - name: build image
+        run: |
+          SKIP_UP=y SKIP_DOWN=y SKIP_TEST=y ./hack/e2e.sh
+        working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
       - name: e2e
         run: |
-          SKIP_UP=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
+          SKIP_UP=y SKIP_BUILD=y SKIP_IMAGE_BUILD=y ./hack/e2e.sh -- --ginkgo.focus='Restarter'
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
     # Ginkgo and the scripts should avoid serial.
     # - name: Short E2E ("actions" takes the most part)
