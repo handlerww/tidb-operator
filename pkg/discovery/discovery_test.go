@@ -929,6 +929,9 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 					}}, nil
 				})
 			} else {
+				tc.Status.PD.PeerMembers = map[string]v1alpha1.PDMember{
+					"pd-0.pd.pingcap.cluster2.com": {Name: "pd-0.pd.pingcap.cluster2.com", ClientURL: "https://pd-0.pd.pingcap.cluster2.com:2379", Health: false},
+				}
 				pdClientCluster2.AddReaction(pdapi.GetHealthActionType, func(action *pdapi.Action) (interface{}, error) {
 					return nil, fmt.Errorf("Fake cluster 2 PD crashed")
 				})
@@ -959,6 +962,9 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 					}}, nil
 				})
 			} else {
+				tc.Status.PD.PeerMembers = map[string]v1alpha1.PDMember{
+					"pd-0.pd.pingcap.cluster2.com": {Name: "pd-0.pd.pingcap.cluster2.com", ClientURL: "http://pd-0.pd.pingcap.cluster2.com:2379", Health: false},
+				}
 				pdClientCluster2.AddReaction(pdapi.GetHealthActionType, func(action *pdapi.Action) (interface{}, error) {
 					return nil, fmt.Errorf("Fake cluster 2 PD crashed")
 				})
@@ -982,7 +988,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("demo-pd:2379"))
+				g.Expect(s).To(Equal("demo-pd:2379,pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -995,10 +1001,8 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
 				g.Expect(s).To(Equal("pd-0.pd.pingcap.cluster2.com:2379"))
-			},
-		},
+				g.Expect(s).To(Equal("demo-pd:2379,pd-0.pd.pingcap.cluster2.com:2379"))
 		{
-			name:          "tidb requests, tls off, in-cluster PD disabled, and peer-cluster PD disabled",
 			ns:            "default",
 			url:           "demo-pd:2379",
 			tls:           false,
@@ -1018,7 +1022,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("demo-pd:2379"))
+				g.Expect(s).To(Equal("demo-pd:2379,pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -1030,7 +1034,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("pd-0.pd.pingcap.cluster2.com:2379"))
+				g.Expect(s).To(Equal("demo-pd:2379,pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -1054,7 +1058,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("http://demo-pd:2379"))
+				g.Expect(s).To(Equal("http://demo-pd:2379,http://pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -1066,7 +1070,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("http://pd-0.pd.pingcap.cluster2.com:2379"))
+				g.Expect(s).To(Equal("http://demo-pd:2379,http://pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -1090,7 +1094,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("https://demo-pd:2379"))
+				g.Expect(s).To(Equal("https://demo-pd:2379,https://pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{
@@ -1102,7 +1106,7 @@ func TestDiscoveryVerifyPDEndpoint(t *testing.T) {
 			peerclusterPD: true,
 			expectFn: func(g *GomegaWithT, td *tidbDiscovery, s string, err error) {
 				g.Expect(err).NotTo(HaveOccurred())
-				g.Expect(s).To(Equal("https://pd-0.pd.pingcap.cluster2.com:2379"))
+				g.Expect(s).To(Equal("https://demo-pd:2379,https://pd-0.pd.pingcap.cluster2.com:2379"))
 			},
 		},
 		{

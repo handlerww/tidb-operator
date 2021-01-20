@@ -98,6 +98,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.RestoreList":                   schema_pkg_apis_pingcap_v1alpha1_RestoreList(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.RestoreSpec":                   schema_pkg_apis_pingcap_v1alpha1_RestoreSpec(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.S3StorageProvider":             schema_pkg_apis_pingcap_v1alpha1_S3StorageProvider(ref),
+		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SafeTLSConfig":                 schema_pkg_apis_pingcap_v1alpha1_SafeTLSConfig(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretRef":                     schema_pkg_apis_pingcap_v1alpha1_SecretRef(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.Security":                      schema_pkg_apis_pingcap_v1alpha1_Security(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.ServiceSpec":                   schema_pkg_apis_pingcap_v1alpha1_ServiceSpec(ref),
@@ -105,6 +106,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.StmtSummary":                   schema_pkg_apis_pingcap_v1alpha1_StmtSummary(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.StorageClaim":                  schema_pkg_apis_pingcap_v1alpha1_StorageClaim(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.StorageProvider":               schema_pkg_apis_pingcap_v1alpha1_StorageProvider(ref),
+		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TLSConfig":                     schema_pkg_apis_pingcap_v1alpha1_TLSConfig(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TiCDCConfig":                   schema_pkg_apis_pingcap_v1alpha1_TiCDCConfig(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TiCDCSpec":                     schema_pkg_apis_pingcap_v1alpha1_TiCDCSpec(ref),
 		"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TiDBAccessConfig":              schema_pkg_apis_pingcap_v1alpha1_TiDBAccessConfig(ref),
@@ -1348,6 +1350,19 @@ func schema_pkg_apis_pingcap_v1alpha1_ComponentSpec(ref common.ReferenceCallback
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Ref: ref("k8s.io/api/core/v1.EnvVar"),
+									},
+								},
+							},
+						},
+					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
 									},
 								},
 							},
@@ -3014,6 +3029,19 @@ func schema_pkg_apis_pingcap_v1alpha1_MasterSpec(ref common.ReferenceCallback) c
 							},
 						},
 					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
+									},
+								},
+							},
+						},
+					},
 					"additionalContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Additional containers of the component.",
@@ -4164,6 +4192,19 @@ func schema_pkg_apis_pingcap_v1alpha1_PDSpec(ref common.ReferenceCallback) commo
 							},
 						},
 					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
+									},
+								},
+							},
+						},
+					},
 					"additionalContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Additional containers of the component.",
@@ -4900,6 +4941,19 @@ func schema_pkg_apis_pingcap_v1alpha1_PumpSpec(ref common.ReferenceCallback) com
 							},
 						},
 					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
+									},
+								},
+							},
+						},
+					},
 					"additionalContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Additional containers of the component.",
@@ -5341,6 +5395,53 @@ func schema_pkg_apis_pingcap_v1alpha1_S3StorageProvider(ref common.ReferenceCall
 	}
 }
 
+func schema_pkg_apis_pingcap_v1alpha1_SafeTLSConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SafeTLSConfig specifies safe TLS configuration parameters.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"ca": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Struct containing the CA cert to use for the targets.",
+							Ref:         ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap"),
+						},
+					},
+					"cert": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Struct containing the client cert file for the targets.",
+							Ref:         ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap"),
+						},
+					},
+					"keySecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Secret containing the client key file for the targets.",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
+						},
+					},
+					"serverName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Used to verify the hostname for the targets.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"insecureSkipVerify": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Disable target certificate validation.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap", "k8s.io/api/core/v1.SecretKeySelector"},
+	}
+}
+
 func schema_pkg_apis_pingcap_v1alpha1_SecretRef(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -5645,6 +5746,74 @@ func schema_pkg_apis_pingcap_v1alpha1_StorageProvider(ref common.ReferenceCallba
 	}
 }
 
+func schema_pkg_apis_pingcap_v1alpha1_TLSConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TLSConfig extends the safe TLS configuration with file parameters.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"ca": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Struct containing the CA cert to use for the targets.",
+							Ref:         ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap"),
+						},
+					},
+					"cert": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Struct containing the client cert file for the targets.",
+							Ref:         ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap"),
+						},
+					},
+					"keySecret": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Secret containing the client key file for the targets.",
+							Ref:         ref("k8s.io/api/core/v1.SecretKeySelector"),
+						},
+					},
+					"serverName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Used to verify the hostname for the targets.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"insecureSkipVerify": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Disable target certificate validation.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
+					"caFile": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path to the CA cert in the Prometheus container to use for the targets.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"certFile": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path to the client cert file in the Prometheus container for the targets.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"keyFile": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path to the client key file in the Prometheus container for the targets.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.SecretOrConfigMap", "k8s.io/api/core/v1.SecretKeySelector"},
+	}
+}
+
 func schema_pkg_apis_pingcap_v1alpha1_TiCDCConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
@@ -5811,6 +5980,19 @@ func schema_pkg_apis_pingcap_v1alpha1_TiCDCSpec(ref common.ReferenceCallback) co
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Ref: ref("k8s.io/api/core/v1.EnvVar"),
+									},
+								},
+							},
+						},
+					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
 									},
 								},
 							},
@@ -6542,6 +6724,19 @@ func schema_pkg_apis_pingcap_v1alpha1_TiDBSpec(ref common.ReferenceCallback) com
 							},
 						},
 					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
+									},
+								},
+							},
+						},
+					},
 					"additionalContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Additional containers of the component.",
@@ -6896,6 +7091,19 @@ func schema_pkg_apis_pingcap_v1alpha1_TiFlashSpec(ref common.ReferenceCallback) 
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Ref: ref("k8s.io/api/core/v1.EnvVar"),
+									},
+								},
+							},
+						},
+					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
 									},
 								},
 							},
@@ -9144,6 +9352,19 @@ func schema_pkg_apis_pingcap_v1alpha1_TiKVSpec(ref common.ReferenceCallback) com
 							},
 						},
 					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
+									},
+								},
+							},
+						},
+					},
 					"additionalContainers": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Additional containers of the component.",
@@ -10646,6 +10867,11 @@ func schema_pkg_apis_pingcap_v1alpha1_TidbMonitorSpec(ref common.ReferenceCallba
 							Ref: ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.DMMonitorSpec"),
 						},
 					},
+					"thanos": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.ThanosSpec"),
+						},
+					},
 					"pvReclaimPolicy": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Persistent volume reclaim policy applied to the PVs that consumed by TiDB cluster",
@@ -10770,12 +10996,34 @@ func schema_pkg_apis_pingcap_v1alpha1_TidbMonitorSpec(ref common.ReferenceCallba
 							Format:      "",
 						},
 					},
+					"externalLabels": {
+						SchemaProps: spec.SchemaProps{
+							Description: "The labels to add to any time series or alerts when communicating with external systems (federation, remote storage, Alertmanager).",
+							Type:        []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Type:   []string{"string"},
+										Format: "",
+									},
+								},
+							},
+						},
+					},
+					"replicaExternalLabelName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Name of Prometheus external label used to denote replica name. Defaults to the value of `prometheus_replica`. External label will _not_ be added when value is set to empty string (`\"\"`).",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"clusters", "prometheus", "reloader", "initializer"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.DMMonitorSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.GrafanaSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.InitializerSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.PrometheusSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.ReloaderSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TidbClusterRef", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.Toleration"},
+			"github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.DMMonitorSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.GrafanaSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.InitializerSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.PrometheusSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.ReloaderSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.ThanosSpec", "github.com/pingcap/tidb-operator/pkg/apis/pingcap/v1alpha1.TidbClusterRef", "k8s.io/api/core/v1.Container", "k8s.io/api/core/v1.LocalObjectReference", "k8s.io/api/core/v1.Toleration"},
 	}
 }
 
@@ -11089,6 +11337,19 @@ func schema_pkg_apis_pingcap_v1alpha1_WorkerSpec(ref common.ReferenceCallback) c
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Ref: ref("k8s.io/api/core/v1.EnvVar"),
+									},
+								},
+							},
+						},
+					},
+					"initContainers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Init containers of the components",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Ref: ref("k8s.io/api/core/v1.Container"),
 									},
 								},
 							},
