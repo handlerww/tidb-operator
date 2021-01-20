@@ -107,7 +107,7 @@ jobs:
       - name: Get matrix jobs
         id: set-matrix
         run: |
-          echo "::set-output name=matrix::{\"include\":[{\"job\":\"should work in\"},{\"job\":\"should switch between pod network and host network\"},{\"job\":\"should upgrade TidbCluster with webhook enabled\"},{\"job\":\"should backup and restore TiDB Cluster\"},{\"job\":\"should keep tidb service in sync\"},{\"job\":\"should adopt helm created pump with TidbCluster CR\"},{\"job\":\"should migrate from helm to CR\"},{\"job\":\"should manage tidb monitor normally\"},{\"job\":\"can be paused and resumed\"},{\"job\":\"should clear TiDB failureMembers when scale TiDB to zero\"},{\"job\":\"should auto scale TiKV pods\"},{\"job\":\"should auto scale TiDB pods\"},{\"job\":\"should enable TLS for MySQL Client and between TiDB components\"},{\"job\":\"should enable TLS for MySQL Client and between Heterogeneous TiDB components\"},{\"job\":\"should ensure changing TiDB service annotations\"},{\"job\":\"should join heterogeneous cluster into an existing cluster\"},{\"job\":\"Feature: CDC\"},{\"job\":\"forbid to scale in TiKV and the state of all stores are up\"},{\"job\":\"TiKV should mount multiple pvc\"}]}"
+          echo "::set-output name=matrix::{\"include\":[{\"job\":\"should upgrade TidbCluster with webhook enabled\"},{\"job\":\"should backup and restore TiDB Cluster\"}]}"
 
   e2e-cases:
     needs: ["image-build"]
@@ -153,7 +153,7 @@ jobs:
 
       - name: e2e(${{ matrix.job }})
         run: |
-          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y DOCKER_REPO=ghcr.io/handlerww/tidb-operator IMAGE_TAG=${{ github.sha }} ./hack/e2e.sh -- --ginkgo.focus='${{ matrix.job }}'
+          SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y DOCKER_REPO=ghcr.io/handlerww/tidb-operator IMAGE_TAG=${{ github.sha }} ./hack/e2e.sh -- --ginkgo.focus="${{ matrix.job }}"
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
   # e2e-clean-images:
