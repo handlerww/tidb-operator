@@ -6,7 +6,7 @@ on:
       - e2e-playground-20
   workflow_dispatch:
 
-# on:
+# on: 
 #   pull_request:
 #     branches:
 #     - master
