@@ -1901,7 +1901,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		})
 	})
 
-	ginkgo.It("[Feature: CDC]", func() {
+	ginkgo.It("TiCDC should finish sink job", func() {
 		// "Creating cdc cluster"
 		fromTc := fixture.GetTidbCluster(ns, "cdc-source", utilimage.TiDBV4Version)
 		fromTc.Spec.PD.Replicas = 3
