@@ -151,11 +151,11 @@ jobs:
             ghcr.io/handlerww/tidb-operator/tidb-operator-e2e:${{ github.sha }}
 
   e2e-cases:
-    needs: ["operator-image-build","e2e-image-build"]
+    needs: ["operator-image-build", "e2e-image-build"]
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
-      matrix: ${{fromJson(needs.image-build.outputs.matrix)}}
+      matrix: ${{fromJson(needs.operator-image-build.outputs.matrix)}}
     steps:
       - name: Set up Go 1.13
         uses: actions/setup-go@v1
