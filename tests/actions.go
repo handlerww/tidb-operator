@@ -980,7 +980,7 @@ func (oa *operatorActions) CleanTidbClusterOrDie(info *TidbClusterConfig) {
 func (oa *operatorActions) CheckTidbClusterStatus(info *TidbClusterConfig) error {
 	log.Logf("checking tidb cluster [%s/%s] status", info.Namespace, info.ClusterName)
 	if info.Clustrer != nil {
-		return oa.crdUtil.WaitForTidbClusterReady(info.Clustrer, 12*time.Minute, 1*time.Minute)
+		return oa.crdUtil.WaitForTidbClusterReady(info.Clustrer, 5*time.Minute, 1*time.Minute)
 	}
 
 	ns := info.Namespace
