@@ -47,20 +47,20 @@ var (
 			corev1.ResourceCPU:    resource.MustParse("100m"),
 			corev1.ResourceMemory: resource.MustParse("100Mi"),
 		},
-		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("1000m"),
-			corev1.ResourceMemory: resource.MustParse("2Gi"),
-		},
+		// Limits: corev1.ResourceList{
+		// 	corev1.ResourceCPU:    resource.MustParse("1000m"),
+		// 	corev1.ResourceMemory: resource.MustParse("2Gi"),
+		// },
 	}
 	BurstbleMedium = corev1.ResourceRequirements{
 		Requests: corev1.ResourceList{
 			corev1.ResourceCPU:    resource.MustParse("100m"),
 			corev1.ResourceMemory: resource.MustParse("100Mi"),
 		},
-		Limits: corev1.ResourceList{
-			corev1.ResourceCPU:    resource.MustParse("2000m"),
-			corev1.ResourceMemory: resource.MustParse("4Gi"),
-		},
+		// Limits: corev1.ResourceList{
+		// 	corev1.ResourceCPU:    resource.MustParse("2000m"),
+		// 	corev1.ResourceMemory: resource.MustParse("4Gi"),
+		// },
 	}
 	// hard-coded region and s3 bucket in our aws account for e2e testing
 	// TODO create s3 bucket in current region dynamically
