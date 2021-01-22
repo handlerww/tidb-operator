@@ -1926,7 +1926,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		err = oa.WaitForTidbClusterReady(toTc, 3*time.Minute, 5*time.Second)
 		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
-		ginkgo.By("Creating change feed task")
+		// "Creating change feed task"
 		fromTCName := fromTc.Name
 		toTCName := toTc.Name
 		args := []string{
