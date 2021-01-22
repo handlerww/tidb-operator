@@ -365,7 +365,7 @@ func InstallCertManager(cli clientset.Interface) error {
 		return fmt.Errorf("failed to install cert-manager %s %v", string(data), err)
 	}
 
-	err := pod.WaitForPodsRunningReady(cli, "cert-manager", 3, 0, 10*time.Minute, nil)
+	err := pod.WaitForPodsRunningReady(cli, "cert-manager", 3, 0, 1*time.Minute, nil)
 	if err != nil {
 		return err
 	}
@@ -381,7 +381,7 @@ func DeleteCertManager(cli clientset.Interface) error {
 		return fmt.Errorf("failed to delete cert-manager %s %v", string(data), err)
 	}
 
-	return wait.PollImmediate(5*time.Second, 10*time.Minute, func() (bool, error) {
+	return wait.PollImmediate(5*time.Second, 1*time.Minute, func() (bool, error) {
 		podList, err := cli.CoreV1().Pods("cert-manager").List(metav1.ListOptions{})
 		if err != nil {
 			return false, nil

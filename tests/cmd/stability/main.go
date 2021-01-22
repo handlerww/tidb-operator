@@ -148,7 +148,7 @@ func run() {
 		//deploy and clean the one-pd-cluster
 		onePDTC := onePDClsuter.Clustrer
 		crdUtil.CreateTidbClusterOrDie(onePDTC)
-		crdUtil.WaitTidbClusterReadyOrDie(onePDTC, 60*time.Minute)
+		crdUtil.WaitTidbClusterReadyOrDie(onePDTC, 6*time.Minute)
 		crdUtil.DeleteTidbClusterOrDie(onePDTC)
 
 		// deploy
@@ -161,7 +161,7 @@ func run() {
 		}
 		for _, cluster := range clusters {
 			tc := cluster.Clustrer
-			crdUtil.WaitTidbClusterReadyOrDie(tc, 60*time.Minute)
+			crdUtil.WaitTidbClusterReadyOrDie(tc, 6*time.Minute)
 			crdUtil.CheckDisasterToleranceOrDie(tc)
 			oa.BeginInsertDataToOrDie(cluster)
 		}
@@ -174,7 +174,7 @@ func run() {
 		for _, cluster := range clusters {
 			cluster.Clustrer.Spec.Version = upgradeVersion
 			crdUtil.UpdateTidbClusterOrDie(cluster.Clustrer)
-			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 60*time.Minute)
+			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 6*time.Minute)
 		}
 		log.Logf("clusters upgraded in checked")
 
@@ -185,7 +185,7 @@ func run() {
 			cluster.Clustrer.Spec.TiDB.Config.Set("token-limit", cfg.TiDBTokenLimit)
 
 			crdUtil.UpdateTidbClusterOrDie(cluster.Clustrer)
-			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 60*time.Minute)
+			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 6*time.Minute)
 		}
 		oa.CleanWebHookAndServiceOrDie(ocfg.WebhookConfigName)
 		log.Logf("clusters configurations updated in checked")
@@ -206,7 +206,7 @@ func run() {
 		oa.WaitPodOnNodeReadyOrDie(deployedClusters, node)
 		oa.CheckRecoverOrDie(deployedClusters)
 		for _, cluster := range deployedClusters {
-			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 30*time.Minute)
+			crdUtil.WaitTidbClusterReadyOrDie(cluster.Clustrer, 3*time.Minute)
 		}
 		log.Logf("clusters node stopped and restarted checked")
 		slack.NotifyAndCompletedf("stability test: clusters node stopped and restarted checked")

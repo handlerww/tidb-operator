@@ -72,7 +72,7 @@ func checkTidbMonitorPod(tm *v1alpha1.TidbMonitor, kubeCli kubernetes.Interface)
 		return err
 	}
 
-	return wait.Poll(5*time.Second, 20*time.Minute, func() (done bool, err error) {
+	return wait.Poll(5*time.Second, 2*time.Minute, func() (done bool, err error) {
 
 		pods, err := kubeCli.CoreV1().Pods(namespace).List(metav1.ListOptions{
 			LabelSelector: monitorLabel.String(),
@@ -240,7 +240,7 @@ func checkGrafanaDataCommon(name, namespace string, grafanaClient *metrics.Clien
 		return nil, err
 	}
 
-	err = wait.PollImmediate(5*time.Second, 20*time.Minute, func() (done bool, err error) {
+	err = wait.PollImmediate(5*time.Second, 2*time.Minute, func() (done bool, err error) {
 
 		end := time.Now()
 		start := end.Add(-time.Minute)

@@ -72,7 +72,7 @@ func (oa *operatorActions) DeletePDDataThenCheckFailover(info *TidbClusterConfig
 	log.Logf("delete pod %s/%s data successfully", ns, podName)
 
 	// first we ensured that pd failover new pod, and failure member/pod should be deleted.
-	err = wait.Poll(10*time.Second, 30*time.Minute+failoverTimeout+pdFailoverPeriod, func() (bool, error) {
+	err = wait.Poll(10*time.Second, 3*time.Minute+failoverTimeout+pdFailoverPeriod, func() (bool, error) {
 		tc, err := oa.cli.PingcapV1alpha1().TidbClusters(ns).Get(tcName, metav1.GetOptions{})
 		if err != nil {
 			log.Logf("ERROR: %v", err)
@@ -253,7 +253,7 @@ func (oa *operatorActions) TruncateSSTFileThenCheckFailover(info *TidbClusterCon
 		return err
 	}
 
-	if err := wait.Poll(1*time.Minute, 30*time.Minute, func() (bool, error) {
+	if err := wait.Poll(1*time.Minute, 3*time.Minute, func() (bool, error) {
 		if err := tikvOps.RecoverSSTFile(info.Namespace, podName); err != nil {
 			log.Logf("ERROR: failed to recovery sst file %s/%s, %v", info.Namespace, podName, err)
 			return false, nil
@@ -276,7 +276,7 @@ func (oa *operatorActions) TruncateSSTFileThenCheckFailover(info *TidbClusterCon
 		return err
 	}
 
-	err = wait.Poll(10*time.Second, 30*time.Minute, func() (done bool, err error) {
+	err = wait.Poll(10*time.Second, 3*time.Minute, func() (done bool, err error) {
 		if err := tikvOps.RemovePanicMark(info.Namespace, podName); err != nil {
 			log.Logf("ERROR: failed to remove panic mark %s/%s, %v", info.Namespace, podName, err)
 			return false, nil
@@ -389,7 +389,7 @@ func (oa *operatorActions) CheckFailoverPending(info *TidbClusterConfig, node st
 }
 
 func (oa *operatorActions) CheckFailoverPendingOrDie(clusters []*TidbClusterConfig, node string, faultPoint *time.Time) {
-	if err := wait.Poll(1*time.Minute, 30*time.Minute, func() (bool, error) {
+	if err := wait.Poll(1*time.Minute, 3*time.Minute, func() (bool, error) {
 		var passes []bool
 		for i := range clusters {
 			pass, err := oa.CheckFailoverPending(clusters[i], node, faultPoint)
@@ -470,7 +470,7 @@ func (oa *operatorActions) getPodsByNode(info *TidbClusterConfig, node string) (
 }
 
 func (oa *operatorActions) CheckFailoverOrDie(clusters []*TidbClusterConfig, faultNode string) {
-	if err := wait.Poll(1*time.Minute, 60*time.Minute, func() (bool, error) {
+	if err := wait.Poll(1*time.Minute, 6*time.Minute, func() (bool, error) {
 		var passes []bool
 		for i := range clusters {
 			pass, err := oa.CheckFailover(clusters[i], faultNode)
@@ -719,7 +719,7 @@ func (oa *operatorActions) GetNodeMap(info *TidbClusterConfig, component string)
 func (oa *operatorActions) CheckKubeletDownOrDie(operatorConfig *OperatorConfig, clusters []*TidbClusterConfig, faultNode string) {
 	log.Logf("check k8s/operator/tidbCluster status when kubelet down")
 	time.Sleep(10 * time.Minute)
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckK8sAvailable(nil, nil)
 		if err != nil {
 			return err
@@ -743,7 +743,7 @@ func (oa *operatorActions) CheckEtcdDownOrDie(operatorConfig *OperatorConfig, cl
 	log.Logf("check k8s/operator/tidbCluster status when etcd down")
 	// kube-apiserver may block 15 min
 	time.Sleep(20 * time.Minute)
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckK8sAvailable(nil, nil)
 		if err != nil {
 			return err
@@ -766,7 +766,7 @@ func (oa *operatorActions) CheckEtcdDownOrDie(operatorConfig *OperatorConfig, cl
 func (oa *operatorActions) CheckKubeProxyDownOrDie(operatorConfig *OperatorConfig, clusters []*TidbClusterConfig) {
 	log.Logf("checking k8s/tidbCluster status when kube-proxy down")
 
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckK8sAvailable(nil, nil)
 		if err != nil {
 			return err
@@ -798,7 +798,7 @@ func (oa *operatorActions) CheckKubeSchedulerDownOrDie(operatorConfig *OperatorC
 
 	log.Logf("checking operator/tidbCluster status when kube-scheduler is not available")
 
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckOperatorAvailable(operatorConfig)
 		if err != nil {
 			return err
@@ -823,7 +823,7 @@ func (oa *operatorActions) CheckKubeControllerManagerDownOrDie(operatorConfig *O
 
 	log.Logf("checking operator/tidbCluster status when kube-controller-manager is not available")
 
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckOperatorAvailable(operatorConfig)
 		if err != nil {
 			return err
@@ -881,7 +881,7 @@ func (oa *operatorActions) CheckOneApiserverDownOrDie(operatorConfig *OperatorCo
 	if proxyPod != nil {
 		affectedPods[proxyPod.GetName()] = proxyPod
 	}
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckK8sAvailable(map[string]string{faultNode: faultNode}, affectedPods)
 		if err != nil {
 			log.Logf("ERROR: CheckK8sAvailable Failed, err: %v", err)
@@ -905,7 +905,7 @@ func (oa *operatorActions) CheckOneApiserverDownOrDie(operatorConfig *OperatorCo
 }
 
 func (oa *operatorActions) CheckAllApiserverDownOrDie(operatorConfig *OperatorConfig, clusters []*TidbClusterConfig) {
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckTidbClustersAvailable(clusters)
 		if err != nil {
 			return err
@@ -918,7 +918,7 @@ func (oa *operatorActions) CheckAllApiserverDownOrDie(operatorConfig *OperatorCo
 func (oa *operatorActions) CheckOperatorDownOrDie(clusters []*TidbClusterConfig) {
 	log.Logf("checking k8s/tidbCluster status when operator down")
 
-	KeepOrDie(3*time.Second, 10*time.Minute, func() error {
+	KeepOrDie(3*time.Second, 1*time.Minute, func() error {
 		err := oa.CheckK8sAvailable(nil, nil)
 		if err != nil {
 			return err
@@ -935,7 +935,7 @@ func (oa *operatorActions) CheckK8sAvailableOrDie(excludeNodes map[string]string
 }
 
 func (oa *operatorActions) CheckK8sAvailable(excludeNodes map[string]string, excludePods map[string]*corev1.Pod) error {
-	return wait.Poll(3*time.Second, 10*time.Minute, func() (bool, error) {
+	return wait.Poll(3*time.Second, 1*time.Minute, func() (bool, error) {
 		nodes, err := oa.kubeCli.CoreV1().Nodes().List(metav1.ListOptions{})
 		if err != nil {
 			log.Logf("ERROR: failed to list nodes,error:%v", err)
@@ -1059,7 +1059,7 @@ func (oa *operatorActions) addDataToCluster(info *TidbClusterConfig) (bool, erro
 
 func (oa *operatorActions) WaitPodOnNodeReadyOrDie(clusters []*TidbClusterConfig, faultNode string) {
 
-	err := wait.Poll(5*time.Second, 30*time.Minute, func() (done bool, err error) {
+	err := wait.Poll(5*time.Second, 3*time.Minute, func() (done bool, err error) {
 		for _, cluster := range clusters {
 			listOptions := metav1.ListOptions{
 				LabelSelector: labels.SelectorFromSet(

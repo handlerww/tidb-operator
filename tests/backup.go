@@ -137,13 +137,13 @@ func (oa *operatorActions) BackupAndRestoreToMultipleClusters(source *TidbCluste
 				return oa.RestoreIncrementalFiles(target.GetDrainerConfig(source, ts), target.TargetCluster, stopWriteTS)
 			})
 			eg.Go(func() error {
-				return oa.CheckDataConsistency(source, target.TargetCluster, 60*time.Minute)
+				return oa.CheckDataConsistency(source, target.TargetCluster, 6*time.Minute)
 			})
 			if err := eg.Wait(); err != nil {
 				return err
 			}
 		} else {
-			if err := oa.CheckDataConsistency(source, target.TargetCluster, 30*time.Minute); err != nil {
+			if err := oa.CheckDataConsistency(source, target.TargetCluster, 3*time.Minute); err != nil {
 				return err
 			}
 		}

@@ -146,7 +146,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 			tc.Spec.TiFlash.Replicas = 5
 			err := genericCli.Create(context.TODO(), tc)
 			framework.ExpectNoError(err, "failed to create TidbCluster: %v", tc)
-			err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+			err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 			framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 
 			scalingTests := []struct {
@@ -304,7 +304,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 				}
 			}
 
-			err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+			err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 			framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 		})
 	})
@@ -349,7 +349,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 		tc := fixture.GetTidbCluster(ns, "sts", utilimage.TiDBV3Version)
 		err = genericCli.Create(context.TODO(), tc)
 		framework.ExpectNoError(err, "failed to create TidbCluster: %v", tc)
-		err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 
 		listOption := metav1.ListOptions{
@@ -444,7 +444,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 		tc.Spec.TiDB.Replicas = 3
 		err = genericCli.Create(context.TODO(), tc)
 		framework.ExpectNoError(err, "failed to create TidbCluster: %v", tc)
-		err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 
 		ginkgo.By("Scaling in the cluster by deleting some pods not at the end")
@@ -464,7 +464,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 		})
 		framework.ExpectNoError(err, "failed to update TidbCluster %s/%s", ns, tc.Name)
 		ginkgo.By("Checking for tidb cluster is ready")
-		err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 
 		ginkgo.By("Upgrding the cluster")
@@ -474,7 +474,7 @@ var _ = ginkgo.Describe("[Stability]", func() {
 		})
 		framework.ExpectNoError(err, "failed to update TidbCluster %s/%s", ns, tc.Name)
 		ginkgo.By("Checking for tidb cluster is ready")
-		err = oa.WaitForTidbClusterReady(tc, 30*time.Minute, 15*time.Second)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 15*time.Second)
 		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %v", tc)
 	})
 })

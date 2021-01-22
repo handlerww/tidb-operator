@@ -980,13 +980,13 @@ func (oa *operatorActions) CleanTidbClusterOrDie(info *TidbClusterConfig) {
 func (oa *operatorActions) CheckTidbClusterStatus(info *TidbClusterConfig) error {
 	log.Logf("checking tidb cluster [%s/%s] status", info.Namespace, info.ClusterName)
 	if info.Clustrer != nil {
-		return oa.crdUtil.WaitForTidbClusterReady(info.Clustrer, 120*time.Minute, 1*time.Minute)
+		return oa.crdUtil.WaitForTidbClusterReady(info.Clustrer, 12*time.Minute, 1*time.Minute)
 	}
 
 	ns := info.Namespace
 	tcName := info.ClusterName
 	// TODO: remove redundant checks already in WaitForTidbClusterReady
-	if err := wait.Poll(oa.pollInterval, 10*time.Minute, func() (bool, error) {
+	if err := wait.Poll(oa.pollInterval, 1*time.Minute, func() (bool, error) {
 		var tc *v1alpha1.TidbCluster
 		var err error
 		if tc, err = oa.cli.PingcapV1alpha1().TidbClusters(ns).Get(tcName, metav1.GetOptions{}); err != nil {
@@ -3513,7 +3513,7 @@ func (oa *operatorActions) checkManualPauseComponent(info *TidbClusterConfig, co
 	}
 
 	// wait for the tidb or tikv statefulset is upgraded to the protected one
-	if err = wait.Poll(DefaultPollInterval, 30*time.Minute, fn); err != nil {
+	if err = wait.Poll(DefaultPollInterval, 3*time.Minute, fn); err != nil {
 		return fmt.Errorf("fail to upgrade to annotation %s pod, err: %v", component, err)
 	}
 
@@ -3533,7 +3533,7 @@ func (oa *operatorActions) checkManualPauseComponent(info *TidbClusterConfig, co
 
 func (oa *operatorActions) CheckUpgradeComplete(info *TidbClusterConfig) error {
 	ns, tcName := info.Namespace, info.ClusterName
-	if err := wait.PollImmediate(15*time.Second, 30*time.Minute, func() (done bool, err error) {
+	if err := wait.PollImmediate(15*time.Second, 3*time.Minute, func() (done bool, err error) {
 		tc, err := oa.cli.PingcapV1alpha1().TidbClusters(ns).Get(tcName, metav1.GetOptions{})
 		if err != nil {
 			log.Logf("checkUpgradeComplete, [%s/%s] cannot get tidbcluster, %v", ns, tcName, err)

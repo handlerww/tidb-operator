@@ -218,11 +218,11 @@ func testBR(provider, ns string, fw portforward.PortForward, c clientset.Interfa
 	framework.ExpectNoError(err, "failed to create TidbCluster tcTo: %v", tcTo)
 
 	// wait both tidbcluster ready
-	err = oa.WaitForTidbClusterReady(tcFrom, 30*time.Minute, 15*time.Second)
+	err = oa.WaitForTidbClusterReady(tcFrom, 3*time.Minute, 15*time.Second)
 	framework.ExpectNoError(err, "failed to wait for TidbCluster tcFrom ready")
 	clusterFrom := newTidbClusterConfig(e2econfig.TestConfig, ns, tcNameFrom, "", utilimage.TiDBV4Version)
 
-	err = oa.WaitForTidbClusterReady(tcTo, 30*time.Minute, 15*time.Second)
+	err = oa.WaitForTidbClusterReady(tcTo, 3*time.Minute, 15*time.Second)
 	framework.ExpectNoError(err, "failed to wait for TidbCluster tcTo ready")
 	clusterTo := newTidbClusterConfig(e2econfig.TestConfig, ns, tcNameTo, "", utilimage.TiDBV4Version)
 
@@ -286,7 +286,7 @@ func testBR(provider, ns string, fw portforward.PortForward, c clientset.Interfa
 	defer cleanFunc()
 
 	// check backup is successful
-	err = wait.PollImmediate(5*time.Second, 10*time.Minute, func() (bool, error) {
+	err = wait.PollImmediate(5*time.Second, 1*time.Minute, func() (bool, error) {
 		tmpBackup, err := cli.PingcapV1alpha1().Backups(ns).Get(backup.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, err
@@ -316,7 +316,7 @@ func testBR(provider, ns string, fw portforward.PortForward, c clientset.Interfa
 	framework.ExpectNoError(err, "failed to create restore in ns %s: %v", ns, restore)
 
 	// check restore is successful
-	err = wait.PollImmediate(5*time.Second, 10*time.Minute, func() (bool, error) {
+	err = wait.PollImmediate(5*time.Second, 1*time.Minute, func() (bool, error) {
 		tmpRestore, err := cli.PingcapV1alpha1().Restores(ns).Get(restore.Name, metav1.GetOptions{})
 		if err != nil {
 			return false, err
