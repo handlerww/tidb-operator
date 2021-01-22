@@ -126,9 +126,9 @@ var _ = ginkgo.Describe("[Serial]", func() {
 				LogLevel:          "4",
 				ImagePullPolicy:   v1.PullIfNotPresent,
 				TestMode:          true,
-				WebhookEnabled:    true,
-				PodWebhookEnabled: true,
-				StsWebhookEnabled: true,
+				WebhookEnabled:    false,
+				PodWebhookEnabled: false,
+				StsWebhookEnabled: false,
 			}
 			oa = tests.NewOperatorActions(cli, c, asCli, aggrCli, apiExtCli, tests.DefaultPollInterval, ocfg, e2econfig.TestConfig, nil, fw, f)
 			ginkgo.By("Installing CRDs")
