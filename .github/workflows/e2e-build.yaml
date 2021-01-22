@@ -191,6 +191,10 @@ jobs:
           kubectl create ns pingcap
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
+      - name: continue tmate
+        run: |
+          sudo touch /continue
+
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
 
