@@ -314,9 +314,9 @@ var _ = ginkgo.SynchronizedBeforeSuite(func() []byte {
 		ginkgo.By("Skip installing tidb-operator")
 	}
 
-	ginkgo.By("Installing cert-manager")
-	err = tidbcluster.InstallCertManager(kubeCli)
-	framework.ExpectNoError(err, "failed to install cert-manager")
+	// ginkgo.By("Installing cert-manager")
+	// err = tidbcluster.InstallCertManager(kubeCli)
+	// framework.ExpectNoError(err, "failed to install cert-manager")
 	return nil
 }, func(data []byte) {
 	// Run on all Ginkgo nodes
