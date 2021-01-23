@@ -155,25 +155,25 @@ func GetTidbCluster(ns, name, version string) *v1alpha1.TidbCluster {
 
 func buildAffinity(name, namespace string, memberType v1alpha1.MemberType) *corev1.Affinity {
 	return &corev1.Affinity{
-		PodAntiAffinity: &corev1.PodAntiAffinity{
-			PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
-				{
-					Weight: int32(50),
-					PodAffinityTerm: corev1.PodAffinityTerm{
-						LabelSelector: &metav1.LabelSelector{
-							MatchLabels: map[string]string{
-								"app.kubernetes.io/component": memberType.String(),
-								"app.kubernetes.io/instance":  name,
-							},
-						},
-						Namespaces: []string{
-							namespace,
-						},
-						TopologyKey: "rack",
-					},
-				},
-			},
-		},
+		// PodAntiAffinity: &corev1.PodAntiAffinity{
+		// 	PreferredDuringSchedulingIgnoredDuringExecution: []corev1.WeightedPodAffinityTerm{
+		// 		{
+		// 			Weight: int32(50),
+		// 			PodAffinityTerm: corev1.PodAffinityTerm{
+		// 				LabelSelector: &metav1.LabelSelector{
+		// 					MatchLabels: map[string]string{
+		// 						"app.kubernetes.io/component": memberType.String(),
+		// 						"app.kubernetes.io/instance":  name,
+		// 					},
+		// 				},
+		// 				Namespaces: []string{
+		// 					namespace,
+		// 				},
+		// 				TopologyKey: "rack",
+		// 			},
+		// 		},
+		// 	},
+		// },
 	}
 }
 
