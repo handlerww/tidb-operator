@@ -386,7 +386,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 				return false, nil
 			}
 			if haveKV, err := gomega.HaveKeyWithValue("test", "test").Match(svc.Annotations); !haveKV {
-				log.Logf("tidb service has no annotation test=test, %v", err)
+				log.Logf("tidb service has no annotation test=test, %v", err) 
 				return false, nil
 			}
 			return true, nil
