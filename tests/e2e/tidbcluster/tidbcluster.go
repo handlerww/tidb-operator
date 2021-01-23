@@ -168,9 +168,9 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 
 				ginkgo.By("Scale out tidb, tikv, pd")
 				err = controller.GuaranteedUpdate(genericCli, tc, func() error {
-					tc.Spec.TiDB.Replicas = 3
+					tc.Spec.TiDB.Replicas = 2
 					tc.Spec.TiKV.Replicas = 4
-					tc.Spec.PD.Replicas = 5
+					tc.Spec.PD.Replicas = 2
 					return nil
 				})
 				framework.ExpectNoError(err, "failed to scale out TidbCluster: %q", tc.Name)
@@ -183,7 +183,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 				err = controller.GuaranteedUpdate(genericCli, tc, func() error {
 					tc.Spec.TiDB.Replicas = 1
 					tc.Spec.TiKV.Replicas = 3
-					tc.Spec.PD.Replicas = 3
+					tc.Spec.PD.Replicas = 1
 					return nil
 				})
 				framework.ExpectNoError(err, "failed to scale in TidbCluster: %q", tc.Name)
@@ -1228,7 +1228,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 			clusterName := "auto-scaling-tidb"
 			tc := fixture.GetTidbCluster(ns, clusterName, utilimage.TiDBNightlyVersion)
 			tc.Spec.PD.Replicas = 1
-			tc.Spec.TiDB.Replicas = 2
+			tc.Spec.TiDB.Replicas = 1
 			tc.Spec.TiKV.Replicas = 3
 			tc.Spec.PD.Config.Set("pd-server.metric-storage", "http://monitor-prometheus:9090")
 
@@ -1447,10 +1447,10 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 			ginkgo.By("Creating tidb cluster with TLS enabled")
 			dashTLSName := fmt.Sprintf("%s-dashboard-tls", tcName)
 			tc := fixture.GetTidbCluster(ns, tcName, utilimage.TiDBV4Version)
-			tc.Spec.PD.Replicas = 3
+			tc.Spec.PD.Replicas = 1
 			tc.Spec.PD.TLSClientSecretName = &dashTLSName
 			tc.Spec.TiKV.Replicas = 3
-			tc.Spec.TiDB.Replicas = 2
+			tc.Spec.TiDB.Replicas = 1
 			tc.Spec.TiDB.TLSClient = &v1alpha1.TiDBTLSClient{Enabled: true}
 			tc.Spec.TLSCluster = &v1alpha1.TLSCluster{Enabled: true}
 			tc.Spec.Pump = &v1alpha1.PumpSpec{
@@ -1540,9 +1540,9 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 
 			ginkgo.By("Scaling out tidb cluster")
 			err = controller.GuaranteedUpdate(genericCli, tc, func() error {
-				tc.Spec.PD.Replicas = 5
-				tc.Spec.TiKV.Replicas = 5
-				tc.Spec.TiDB.Replicas = 3
+				tc.Spec.PD.Replicas = 3
+				tc.Spec.TiKV.Replicas = 4
+				tc.Spec.TiDB.Replicas = 1
 				return nil
 			})
 			framework.ExpectNoError(err, "failed to update TidbCluster: %q", tc.Name)
@@ -1551,9 +1551,9 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 
 			ginkgo.By("Scaling in tidb cluster")
 			err = controller.GuaranteedUpdate(genericCli, tc, func() error {
-				tc.Spec.PD.Replicas = 3
+				tc.Spec.PD.Replicas = 1
 				tc.Spec.TiKV.Replicas = 3
-				tc.Spec.TiDB.Replicas = 2
+				tc.Spec.TiDB.Replicas = 1
 				return nil
 			})
 			framework.ExpectNoError(err, "failed to update TidbCluster: %q", tc.Name)
@@ -1904,12 +1904,12 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 	ginkgo.It("TiCDC should finish sink job", func() {
 		// "Creating cdc cluster"
 		fromTc := fixture.GetTidbCluster(ns, "cdc-source", utilimage.TiDBV4Version)
-		fromTc.Spec.PD.Replicas = 3
-		fromTc.Spec.TiKV.Replicas = 3
-		fromTc.Spec.TiDB.Replicas = 2
+		fromTc.Spec.PD.Replicas = 1
+		fromTc.Spec.TiKV.Replicas = 1
+		fromTc.Spec.TiDB.Replicas = 1
 		fromTc.Spec.TiCDC = &v1alpha1.TiCDCSpec{
 			BaseImage: "pingcap/ticdc",
-			Replicas:  3,
+			Replicas:  1,
 		}
 		err := genericCli.Create(context.TODO(), fromTc)
 		framework.ExpectNoError(err, "Expected TiDB cluster created")

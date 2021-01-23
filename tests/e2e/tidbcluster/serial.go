@@ -151,9 +151,9 @@ var _ = ginkgo.Describe("[Serial]", func() {
 			// deploy new cluster and test upgrade and scale-in/out with pod admission webhook
 			ginkgo.By(fmt.Sprintf("start initial TidbCluster %q", utilimage.TiDBV3Version))
 			tc := fixture.GetTidbCluster(ns, "admission", utilimage.TiDBV3Version)
-			tc.Spec.PD.Replicas = 3
+			tc.Spec.PD.Replicas = 1
 			tc.Spec.TiKV.Replicas = 3
-			tc.Spec.TiDB.Replicas = 2
+			tc.Spec.TiDB.Replicas = 1
 			tc, err := cli.PingcapV1alpha1().TidbClusters(tc.Namespace).Create(tc)
 			framework.ExpectNoError(err, "failed to create TidbCluster: %v", tc)
 			err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
