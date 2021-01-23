@@ -1913,7 +1913,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		}
 		err := genericCli.Create(context.TODO(), fromTc)
 		framework.ExpectNoError(err, "Expected TiDB cluster created")
-		err = oa.WaitForTidbClusterReady(fromTc, 3*time.Minute, 5*time.Second)
+		err = oa.WaitForTidbClusterReady(fromTc, 6*time.Minute, 5*time.Second)
 		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
 		// "Creating cdc-sink cluster"
@@ -1923,7 +1923,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		toTc.Spec.TiDB.Replicas = 1
 		err = genericCli.Create(context.TODO(), toTc)
 		framework.ExpectNoError(err, "Expected TiDB cluster created")
-		err = oa.WaitForTidbClusterReady(toTc, 3*time.Minute, 5*time.Second)
+		err = oa.WaitForTidbClusterReady(toTc, 6*time.Minute, 5*time.Second)
 		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
 		// "Creating change feed task"
