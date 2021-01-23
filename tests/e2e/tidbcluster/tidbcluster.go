@@ -1988,6 +1988,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		ginkgo.By("Deploy initial tc with addition")
 		clusterName := "tidb-multiple-pvc-scale"
 		tc := fixture.GetTidbCluster(ns, clusterName, utilimage.TiDBV4Version)
+		tc.Spec.SchedulerName = "default-scheduler"
 		tc.Spec.TiKV.StorageVolumes = []v1alpha1.StorageVolume{
 			{
 				Name:        "wal",
