@@ -193,17 +193,17 @@ jobs:
           kubectl create ns pingcap
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
 
-      - name: continue tmate
-        run: |
-          sudo touch /continue
-
-      - name: Setup tmate session
-        uses: mxschmitt/action-tmate@v3
+      # - name: continue tmate
+      #   run: |
+      #     sudo touch /continue
 
       - name: e2e(${{ matrix.job }})
         run: |
           SKIP_BUILD=y SKIP_IMAGE_BUILD=y SKIP_UP=y DOCKER_REPO=ghcr.io/handlerww/tidb-operator IMAGE_TAG=${{ github.sha }} ./hack/e2e.sh -- --ginkgo.focus="${{ matrix.job }}"
         working-directory: ${{ github.workspace }}/go/src/github.com/${{ github.repository }}
+
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
   # e2e-clean-images:
   #   if: always()
   #   needs: ["e2e-cases"]
