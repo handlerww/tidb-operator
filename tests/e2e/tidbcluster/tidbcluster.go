@@ -386,7 +386,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 				return false, nil
 			}
 			if haveKV, err := gomega.HaveKeyWithValue("test", "test").Match(svc.Annotations); !haveKV {
-				log.Logf("tidb service has no annotation test=test, %v", err) 
+				log.Logf("tidb service has no annotation test=test, %v", err)
 				return false, nil
 			}
 			return true, nil
@@ -2016,16 +2016,13 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 			},
 		}
 
-		tc.Spec.PD.Config.Set("log.file.filename", "/var/log/tidb/tidb.log")
 		tc.Spec.PD.Config.Set("log.level", "warn")
-		tc.Spec.TiDB.Config.Set("log.file.max-size", "300")
-		tc.Spec.TiDB.Config.Set("log.file.max-days", "1")
-		tc.Spec.TiDB.Config.Set("log.file.filename", "/var/log/tidb/tidb.log")
 		tc.Spec.TiDB.Config.Set("log.level", "warn")
-		tc.Spec.TiDB.Config.Set("log.file.max-size", "300")
-		tc.Spec.TiDB.Config.Set("log.file.max-days", "1")
 		tc.Spec.TiKV.Config.Set("rocksdb.wal-dir", "/var/lib/wal")
 		tc.Spec.TiKV.Config.Set("titan.dirname", "/var/lib/titan")
+		tc.Spec.PD.Replicas = 1
+		tc.Spec.TiKV.Replicas = 1
+		tc.Spec.TiDB.Replicas = 1
 		// test
 		err := genericCli.Create(context.TODO(), tc)
 		framework.ExpectNoError(err, "Expected TiDB cluster created")
@@ -2040,7 +2037,6 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		framework.ExpectNoError(err, "failed to scale out TidbCluster: %q", tc.Name)
 		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
 		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %q", tc.Name)
-
 
 		ginkgo.By("Scale in multiple pvc tidb cluster")
 		err = controller.GuaranteedUpdate(genericCli, tc, func() error {
@@ -2076,18 +2072,18 @@ func newTidbClusterConfig(cfg *tests.Config, ns, clusterName, password, tcVersio
 			"discovery.resources.requests.memory": "20Mi",
 			// "pd.resources.limits.cpu":             "1000m",
 			// "pd.resources.limits.memory":          "2Gi",
-			"pd.resources.requests.cpu":           "20m",
-			"pd.resources.requests.memory":        "20Mi",
+			"pd.resources.requests.cpu":    "20m",
+			"pd.resources.requests.memory": "20Mi",
 			// "tikv.resources.limits.cpu":           "2000m",
 			// "tikv.resources.limits.memory":        "4Gi",
-			"tikv.resources.requests.cpu":         "20m",
-			"tikv.resources.requests.memory":      "20Mi",
+			"tikv.resources.requests.cpu":    "20m",
+			"tikv.resources.requests.memory": "20Mi",
 			// "tidb.resources.limits.cpu":           "2000m",
 			// "tidb.resources.limits.memory":        "4Gi",
-			"tidb.resources.requests.cpu":         "20m",
-			"tidb.resources.requests.memory":      "20Mi",
-			"tidb.initSql":                        strconv.Quote("create database e2e;"),
-			"discovery.image":                     cfg.OperatorImage,
+			"tidb.resources.requests.cpu":    "20m",
+			"tidb.resources.requests.memory": "20Mi",
+			"tidb.initSql":                   strconv.Quote("create database e2e;"),
+			"discovery.image":                cfg.OperatorImage,
 		},
 		Args:    map[string]string{},
 		Monitor: true,
