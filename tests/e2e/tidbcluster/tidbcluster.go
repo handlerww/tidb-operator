@@ -2026,25 +2026,29 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		tc.Spec.TiDB.Config.Set("log.file.max-days", "1")
 		tc.Spec.TiKV.Config.Set("rocksdb.wal-dir", "/var/lib/wal")
 		tc.Spec.TiKV.Config.Set("titan.dirname", "/var/lib/titan")
-		tcCfg := newTidbClusterConfig(e2econfig.TestConfig, ns, clusterName, "admin", utilimage.TiDBV4Version)
-		tcCfg.Resources["pd.replicas"] = "1"
-		tcCfg.Resources["tikv.replicas"] = "1"
-		tcCfg.Resources["tidb.replicas"] = "1"
-		tcCfg.Clustrer = tc
-
-		log.Logf("deploying tidb cluster [%s/%s]", tcCfg.Namespace, tcCfg.ClusterName)
-		oa.DeployTidbClusterOrDie(&tcCfg)
-		oa.CheckTidbClusterStatusOrDie(&tcCfg)
+		err := genericCli.Create(context.TODO(), tc)
+		framework.ExpectNoError(err, "Expected TiDB cluster created")
+		err = oa.WaitForTidbClusterReady(tc, 6*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
 		ginkgo.By("Scale out multiple pvc tidb cluster")
-		tcCfg.ScaleTiKV(4)
-		oa.UpgradeTidbClusterOrDie(&tcCfg)
-		oa.CheckTidbClusterStatusOrDie(&tcCfg)
+		err = controller.GuaranteedUpdate(genericCli, tc, func() error {
+			tc.Spec.TiKV.Replicas = 4
+			return nil
+		})
+		framework.ExpectNoError(err, "failed to scale out TidbCluster: %q", tc.Name)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %q", tc.Name)
+
 
 		ginkgo.By("Scale in multiple pvc tidb cluster")
-		tcCfg.ScaleTiKV(3)
-		oa.UpgradeTidbClusterOrDie(&tcCfg)
-		oa.CheckTidbClusterStatusOrDie(&tcCfg)
+		err = controller.GuaranteedUpdate(genericCli, tc, func() error {
+			tc.Spec.TiKV.Replicas = 3
+			return nil
+		})
+		framework.ExpectNoError(err, "failed to scale in TidbCluster: %q", tc.Name)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %q", tc.Name)
 	})
 })
 
