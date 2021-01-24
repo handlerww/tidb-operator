@@ -2026,6 +2026,7 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		tc.Spec.TiDB.Config.Set("log.file.max-days", "1")
 		tc.Spec.TiKV.Config.Set("rocksdb.wal-dir", "/var/lib/wal")
 		tc.Spec.TiKV.Config.Set("titan.dirname", "/var/lib/titan")
+		// test
 		err := genericCli.Create(context.TODO(), tc)
 		framework.ExpectNoError(err, "Expected TiDB cluster created")
 		err = oa.WaitForTidbClusterReady(tc, 6*time.Minute, 5*time.Second)
