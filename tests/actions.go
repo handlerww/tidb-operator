@@ -80,7 +80,7 @@ const (
 	period = 5 * time.Minute
 
 	tidbControllerName string = "tidb-controller-manager"
-	tidbSchedulerName  string = "default-scheduler"
+	tidbSchedulerName  string = "tidb-scheduler"
 
 	// NodeUnreachablePodReason is defined in k8s.io/kubernetes/pkg/util/node
 	// but not in client-go and apimachinery, so we define it here
