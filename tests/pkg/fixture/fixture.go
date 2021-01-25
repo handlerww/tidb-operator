@@ -107,7 +107,7 @@ func GetTidbCluster(ns, name, version string) *v1alpha1.TidbCluster {
 			SchedulerName:   "default-scheduler",
 			Timezone:        "Asia/Shanghai",
 			PD: &v1alpha1.PDSpec{
-				Replicas:             3,
+				Replicas:             1,
 				BaseImage:            "pingcap/pd",
 				ResourceRequirements: WithStorage(BurstbleSmall, "1Gi"),
 				Config: func() *v1alpha1.PDConfigWraper {
@@ -122,9 +122,9 @@ func GetTidbCluster(ns, name, version string) *v1alpha1.TidbCluster {
 			},
 
 			TiKV: &v1alpha1.TiKVSpec{
-				Replicas:             3,
+				Replicas:             1,
 				BaseImage:            "pingcap/tikv",
-				ResourceRequirements: WithStorage(BurstbleMedium, "10Gi"),
+				ResourceRequirements: WithStorage(BurstbleSmall, "1Gi"),
 				MaxFailoverCount:     pointer.Int32Ptr(3),
 				Config:               tikvConfig,
 				ComponentSpec: v1alpha1.ComponentSpec{
@@ -133,7 +133,7 @@ func GetTidbCluster(ns, name, version string) *v1alpha1.TidbCluster {
 			},
 
 			TiDB: &v1alpha1.TiDBSpec{
-				Replicas:             2,
+				Replicas:             1,
 				BaseImage:            "pingcap/tidb",
 				ResourceRequirements: BurstbleMedium,
 				Service: &v1alpha1.TiDBServiceSpec{

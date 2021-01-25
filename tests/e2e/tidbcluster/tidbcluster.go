@@ -55,7 +55,6 @@ import (
 	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
-	utilversion "k8s.io/apimachinery/pkg/util/version"
 	"k8s.io/apimachinery/pkg/util/wait"
 	clientset "k8s.io/client-go/kubernetes"
 	typedappsv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
@@ -211,39 +210,31 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 	 * This test case switches back and forth between pod network and host network of a single cluster.
 	 * Note that only one cluster can run in host network mode at the same time.
 	 */
-	ginkgo.It("should switch between pod network and host network", func() {
-		if !ocfg.Enabled(features.AdvancedStatefulSet) {
-			serverVersion, err := c.Discovery().ServerVersion()
-			framework.ExpectNoError(err, "failed to fetch Kubernetes version")
-			sv := utilversion.MustParseSemantic(serverVersion.GitVersion)
-			log.Logf("ServerVersion: %v", serverVersion.String())
-			if sv.LessThan(utilversion.MustParseSemantic("v1.13.11")) || // < v1.13.11
-				(sv.AtLeast(utilversion.MustParseSemantic("v1.14.0")) && sv.LessThan(utilversion.MustParseSemantic("v1.14.7"))) || // >= v1.14.0 and < v1.14.7
-				(sv.AtLeast(utilversion.MustParseSemantic("v1.15.0")) && sv.LessThan(utilversion.MustParseSemantic("v1.15.4"))) { // >= v1.15.0 and < v1.15.4
-				// https://github.com/pingcap/tidb-operator/issues/1042#issuecomment-547742565
-				framework.Skipf("Skipping HostNetwork test. Kubernetes %v has a bug that StatefulSet may apply revision incorrectly, HostNetwork cannot work well in this cluster", serverVersion)
-			}
-			log.Logf("Testing HostNetwork feature with Kubernetes %v", serverVersion)
-		} else {
-			log.Logf("Testing HostNetwork feature with Advanced StatefulSet")
-		}
+	ginkgo.It("should switch between pod network and host network[Helm Chart]", func() {
+		// Create basic cluster
+		clusterName := "basic-cluster"
+		tc := fixture.GetTidbCluster(ns, clusterName, utilimage.TiDBV4Version)
 
-		ginkgo.By("Deploy initial tc")
-		tcCfg := newTidbClusterConfig(e2econfig.TestConfig, ns, "host-network", "", utilimage.TiDBV3Version)
-		tcCfg.Resources["pd.replicas"] = "1"
-		tcCfg.Resources["tidb.replicas"] = "1"
-		tcCfg.Resources["tikv.replicas"] = "1"
-		oa.DeployTidbClusterOrDie(&tcCfg)
+		err := genericCli.Create(context.TODO(), tc)
+		framework.ExpectNoError(err, "Expected TiDB cluster created")
+		err = oa.WaitForTidbClusterReady(tc, 6*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
-		ginkgo.By("Switch to host network")
-		tcCfg.SetHostNetwork(true)
-		oa.UpgradeTidbClusterOrDie(&tcCfg)
-		oa.CheckTidbClusterStatusOrDie(&tcCfg)
+		err = controller.GuaranteedUpdate(genericCli, tc, func() error {
+			tc.Spec.HostNetwork = pointer.BoolPtr(true)
+			return nil
+		})
+		framework.ExpectNoError(err, "failed to switch to hostNetwork TidbCluster: %q", tc.Name)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %q", tc.Name)
 
-		ginkgo.By("Switch back to pod network")
-		tcCfg.SetHostNetwork(false)
-		oa.UpgradeTidbClusterOrDie(&tcCfg)
-		oa.CheckTidbClusterStatusOrDie(&tcCfg)
+		err = controller.GuaranteedUpdate(genericCli, tc, func() error {
+			tc.Spec.HostNetwork = pointer.BoolPtr(false)
+			return nil
+		})
+		framework.ExpectNoError(err, "failed to switch to podNetwork TidbCluster: %q", tc.Name)
+		err = oa.WaitForTidbClusterReady(tc, 3*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "failed to wait for TidbCluster ready: %q", tc.Name)
 	})
 
 	ginkgo.It("should upgrade TidbCluster with webhook enabled", func() {
@@ -289,24 +280,24 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 	})
 
 	ginkgo.It("should backup and restore TiDB Cluster", func() {
-		tcCfgFrom := newTidbClusterConfig(e2econfig.TestConfig, ns, "from", "admin", utilimage.TiDBV3Version)
-		tcCfgFrom.Resources["pd.replicas"] = "1"
-		tcCfgFrom.Resources["tidb.replicas"] = "1"
-		tcCfgFrom.Resources["tikv.replicas"] = "1"
-		tcCfgTo := newTidbClusterConfig(e2econfig.TestConfig, ns, "to", "admin", utilimage.TiDBV3Version)
-		tcCfgTo.Resources["pd.replicas"] = "1"
-		tcCfgTo.Resources["tidb.replicas"] = "1"
-		tcCfgTo.Resources["tikv.replicas"] = "1"
-		oa.DeployTidbClusterOrDie(&tcCfgFrom)
-		oa.DeployTidbClusterOrDie(&tcCfgTo)
-		oa.CheckTidbClusterStatusOrDie(&tcCfgFrom)
-		oa.CheckTidbClusterStatusOrDie(&tcCfgTo)
-		oa.CheckDisasterToleranceOrDie(&tcCfgFrom)
-		oa.CheckDisasterToleranceOrDie(&tcCfgTo)
+		// Create basic cluster
+		tcfrom := fixture.GetTidbCluster(ns, "from", utilimage.TiDBV4Version)
+
+		err := genericCli.Create(context.TODO(), tcfrom)
+		framework.ExpectNoError(err, "Expected TiDB cluster created")
+		err = oa.WaitForTidbClusterReady(tcfrom, 6*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "Expected TiDB cluster ready")
+
+		tcTo := fixture.GetTidbCluster(ns, "to", utilimage.TiDBV4Version)
+
+		err = genericCli.Create(context.TODO(), tcTo)
+		framework.ExpectNoError(err, "Expected TiDB cluster created")
+		err = oa.WaitForTidbClusterReady(tcTo, 6*time.Minute, 5*time.Second)
+		framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
 		// backup and restore
-		ginkgo.By(fmt.Sprintf("Backup %q and restore into %q", tcCfgFrom.ClusterName, tcCfgTo.ClusterName))
-		oa.BackupRestoreOrDie(&tcCfgFrom, &tcCfgTo)
+		ginkgo.By(fmt.Sprintf("Backup %q and restore into %q", tcfrom.ClusterName, tcTo.ClusterName))
+		oa.BackupRestoreOrDie(&tcfrom, &tcTo)
 	})
 
 	ginkgo.It("should keep tidb service in sync", func() {
