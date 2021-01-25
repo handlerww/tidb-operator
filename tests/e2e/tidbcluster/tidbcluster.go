@@ -279,26 +279,26 @@ var _ = ginkgo.Describe("TiDBCluster", func() {
 		oa.CleanWebHookAndServiceOrDie(ocfg.WebhookConfigName)
 	})
 
-	ginkgo.It("should backup and restore TiDB Cluster", func() {
-		// Create basic cluster
-		tcfrom := fixture.GetTidbCluster(ns, "from", utilimage.TiDBV4Version)
+	// ginkgo.It("should backup and restore TiDB Cluster", func() {
+	// 	// Create basic cluster
+	// 	tcfrom := fixture.GetTidbCluster(ns, "from", utilimage.TiDBV4Version)
 
-		err := genericCli.Create(context.TODO(), tcfrom)
-		framework.ExpectNoError(err, "Expected TiDB cluster created")
-		err = oa.WaitForTidbClusterReady(tcfrom, 6*time.Minute, 5*time.Second)
-		framework.ExpectNoError(err, "Expected TiDB cluster ready")
+	// 	err := genericCli.Create(context.TODO(), tcfrom)
+	// 	framework.ExpectNoError(err, "Expected TiDB cluster created")
+	// 	err = oa.WaitForTidbClusterReady(tcfrom, 6*time.Minute, 5*time.Second)
+	// 	framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
-		tcTo := fixture.GetTidbCluster(ns, "to", utilimage.TiDBV4Version)
+	// 	tcTo := fixture.GetTidbCluster(ns, "to", utilimage.TiDBV4Version)
 
-		err = genericCli.Create(context.TODO(), tcTo)
-		framework.ExpectNoError(err, "Expected TiDB cluster created")
-		err = oa.WaitForTidbClusterReady(tcTo, 6*time.Minute, 5*time.Second)
-		framework.ExpectNoError(err, "Expected TiDB cluster ready")
+	// 	err = genericCli.Create(context.TODO(), tcTo)
+	// 	framework.ExpectNoError(err, "Expected TiDB cluster created")
+	// 	err = oa.WaitForTidbClusterReady(tcTo, 6*time.Minute, 5*time.Second)
+	// 	framework.ExpectNoError(err, "Expected TiDB cluster ready")
 
-		// backup and restore
-		ginkgo.By(fmt.Sprintf("Backup %q and restore into %q", tcfrom.ClusterName, tcTo.ClusterName))
-		oa.BackupRestoreOrDie(&tcfrom, &tcTo)
-	})
+	// 	// backup and restore
+	// 	ginkgo.By(fmt.Sprintf("Backup %q and restore into %q", tcfrom.ClusterName, tcTo.ClusterName))
+	// 	oa.BackupRestoreOrDie(&tcfrom, &tcTo)
+	// })
 
 	ginkgo.It("should keep tidb service in sync", func() {
 		ginkgo.By("Deploy initial tc")
